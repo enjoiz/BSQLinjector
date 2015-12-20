@@ -1,6 +1,7 @@
 BSQLinjector by Jakub Pałaczyński
 
 BSQLinjector uses blind method to retrieve data from SQL databases.
+I recommend using "--test" switch to clearly see how configured payload looks like before sending it to an application.
 
 Options:
   --file	Mandatory - File containing valid HTTP request and SQL injection point (SQLINJECT). (--file=/tmp/req.txt)
