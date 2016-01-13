@@ -49,7 +49,7 @@ ARGV.each do |arg|
 	$case = "y" if arg.include?("--case")
 	$i = arg.split("=")[1].to_i - 1 if arg.include?("--start=")
 	$test = "y" if arg.include?("--test")
-	$bracket = arg.split("=")[1].to_i - 1 if arg.include?("--bracket=")
+	$bracket = arg.split("=")[1] if arg.include?("--bracket=")
 	alls = "y" if arg.include?("--special")
 
 	$search = arg.split("=")[1] if arg.include?("--pattern=") && arg.count("=") == 1
