@@ -151,7 +151,7 @@ if $hex == "y"
 end
 
 # get connection host and port
-z = 0
+z = 1
 loop do
     begin
 	    break if File.readlines($file)[z].chomp.empty?
@@ -212,7 +212,11 @@ def configreq(chars)
 	i = 1
 	$headers = Hash.new
 	loop do
-		break if File.readlines($file)[i].chomp.empty?
+        begin
+		    break if File.readlines($file)[i].chomp.empty?
+        rescue
+            break
+        end
 		if !File.readlines($file)[i].include?("Host: ")
 			header = File.readlines($file)[i].chomp
 			if header.include?("SQLINJECT")
