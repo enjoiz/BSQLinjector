@@ -151,9 +151,13 @@ if $hex == "y"
 end
 
 # get connection host and port
-z = 1
+z = 0
 loop do
-	break if File.readlines($file)[z].chomp.empty?
+    begin
+	    break if File.readlines($file)[z].chomp.empty?
+    rescue
+        break
+    end
 	if File.readlines($file)[z].include?("Host: ")
 		$remote = File.readlines($file)[z].split(" ")[1]
 		if $proto == "http"
