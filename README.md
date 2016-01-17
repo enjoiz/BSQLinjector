@@ -20,13 +20,14 @@ I recommend using "--test" switch to clearly see how configured payload looks li
   --proxy	    Proxy to use. (--proxy=127.0.0.1:8080)
 
   --test	    Enable test mode. Do not send request, just show full payload.
-  --comma	    Encode comma.
-  --bracket	    Add brackets to the end of substring function. --bracket="))"
-  --hexspace	Use space instead of brackets to split hex values.
   --special	    Include all special characters in enumeration.
   --start	    Start enumeration from specified character. (--start=10)
   --max		    Maximum characters to enumerate. (--max=10)
   --timeout	    Timeout in waiting for responses. (--timeout=20)
+  --only-final	Stop showing each enumerated letter.
+  --comma	    Encode comma.
+  --bracket	    Add brackets to the end of substring function. --bracket="))"
+  --hexspace	Use space instead of brackets to split hex values.
   --verbose	    Show verbose messages.
   ```
 
