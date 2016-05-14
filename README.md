@@ -1,4 +1,4 @@
-## BSQLinjector by Jakub Pałaczyński
+## BSQLinjector
 
 BSQLinjector uses blind method to retrieve data from SQL databases.
 I recommend using "--test" switch to clearly see how configured payload looks like before sending it to an application.
