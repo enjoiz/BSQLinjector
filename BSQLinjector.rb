@@ -36,6 +36,7 @@ $sleep = 0 # sleep between requests
 alls = "n" # if all special characters should be included in enumeration
 run = 0 # parameter specifies if program should continue when always true condition is detected
 
+
 $i = 0 # main counter for characters
 
 # set all variables
@@ -166,20 +167,30 @@ end
 # get connection host and port
 z = 1
 loop do
-	break if File.readlines($file)[z].chomp.empty?
-	if File.readlines($file)[z].include?("Host: ")
-		$remote = File.readlines($file)[z].split(" ")[1]
-		if $proto == "http"
-			$port = 80
-		else
-			$port = 443
+	begin
+		break if File.readlines($file)[z].chomp.empty?
+		if File.readlines($file)[z].include?("Host: ")
+			$remote = File.readlines($file)[z].split(" ")[1]
+			if $proto == "http"
+				$port = 80
+			else
+				$port = 443
+			end
+			if $remote.include?(":")
+				$port = $remote.split(":")[1]
+				$remote = $remote.split(":")[0]
+			end
 		end
-		if $remote.include?(":")
-			$port = $remote.split(":")[1]
-			$remote = $remote.split(":")[0]
-		end
+	rescue
+		puts "[-] Wrong HTTP file format."
+		exit(1)
 	end
 	z = z + 1
+end
+
+if $remote == ""
+	puts "[-] Cannot retrieve hostname."
+	exit(1)
 end
 
 # Configure main request
