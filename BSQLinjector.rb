@@ -296,10 +296,10 @@ def configreq(chars)
 
 	# detect injection point
 	if found == 0
-		puts "Please specify injection point. Put \"SQLINJECT\" in place where payload should be injected."
+		puts "[-] Please specify injection point. Put \"SQLINJECT\" in place where payload should be injected."
 		exit(1)
 	elsif found > 1
-		puts "Multiple instances of injection point found. Please specify only one injection point."
+		puts "[-] Multiple instances of injection point found. Please specify only one injection point."
 		exit(1)
 	end
 
@@ -375,7 +375,7 @@ def sendreq()
 	end
 	
 	if $verbose == "y"
-		puts "Sending request:"
+		puts "[+] Sending request:"
 		if $proto == "http"
 			puts "http://#{$remote}:#{$port}#{$uri}"
 			puts $headers
@@ -410,7 +410,7 @@ end
 def send2ndreq()
 	
 	if $verbose == "y"
-		puts "Sending second request:"
+		puts "[+] Sending second request:"
 		if $proto == "http"
 			puts "http://#{$remote}:#{$port}#{$securi}"
 			puts $secheaders
@@ -463,7 +463,7 @@ def cbetween(a, b, c)
 	}
 	if ($response.body.include?($search) || $fheader == "y") && c == "yes"
 		$result = $result + a
-	       	puts "Letter " + $i.to_s + " found: " + a if $showletter == "y"
+	       	puts "[+] Letter " + $i.to_s + " found: " + a if $showletter == "y"
 		$letter = 1
 	end
 end
@@ -490,7 +490,7 @@ def cmoreless(a, b, c)
 	}
 	if ($response.body.include?($search) || $fheader == "y") && c == "yes"
 		$result = $result + b
-	      	puts "Letter " + $i.to_s + " found: " + b if $showletter == "y"
+	      	puts "[+] Letter " + $i.to_s + " found: " + b if $showletter == "y"
 		$letter = 1
 	end
 end
@@ -517,7 +517,7 @@ def clike(a)
 	}
 	if $response.body.include?($search) || $fheader == "y"
 		$result = $result + a
-		puts "Letter " + $i.to_s + " found: " + a if $showletter == "y"
+		puts "[+] Letter " + $i.to_s + " found: " + a if $showletter == "y"
 		$letter = 1
 	end
 end
@@ -544,7 +544,7 @@ def cequal(a)
 	}
 	if $response.body.include?($search) || $fheader == "y"
 		$result = $result + a
-		puts "Letter " + $i.to_s + " found: " + a if $showletter == "y"
+		puts "[+] Letter " + $i.to_s + " found: " + a if $showletter == "y"
 		$letter = 1
 	end
 end
@@ -554,7 +554,7 @@ until $i >= $max  do
 	$i = $i + 1
 	$letter = 0
 	if $result == "aaaaa" && run == 0
-        	puts "It seems like your payload gives always true condition. Maybe you should try another parameter\'s value or different payload. Quit (Y/N)?\n"
+        	puts "[-] It seems like your payload gives always true condition. Maybe you should try another parameter\'s value or different payload. Quit (Y/N)?\n"
 		choice = Readline.readline("> ", true)
         		if choice == "y" || choice == "Y"
 				break
@@ -1012,10 +1012,10 @@ until $i >= $max  do
 	# printing results
 	if $letter == 0
 		if $result == ""
-        		puts "No results. Probably wrong pattern."
+        		puts "[-] No results. Probably wrong pattern."
 	            	break
 	        else 
-			puts "\nFull result:\n" + $result
+			puts "\n[+] Full result:\n" + $result
 			break
 	        end
         end
@@ -1023,5 +1023,5 @@ end
 
 # means that there are still chars to enumerate
 if $letter == 1
-	puts "\nRetreving not finished:\n" + $result
+	puts "\n[-] Retreving not finished:\n" + $result
 end
