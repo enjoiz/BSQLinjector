@@ -13,6 +13,7 @@ I recommend using "--test" switch to clearly see how configured payload looks li
   --2ndfile	    File containing valid HTTP request used in second order exploitation. (--2ndfile=/tmp/2ndreq.txt)
 
   --mode	    Blind mode to use - (between - b (generates less requests), moreless - a (generates less requests by using "<", ">", "=" characters), like - l (complete bruteforce), equals - e (complete bruteforce)). (--mode=l)
+  --postgres        Use postgres \"for\" in substring function.
   --hex		    Use hex to compare instead of characters.
   --case	    Case sensitivity.
 
@@ -24,10 +25,10 @@ I recommend using "--test" switch to clearly see how configured payload looks li
   --start	    Start enumeration from specified character. (--start=10)
   --max		    Maximum characters to enumerate. (--max=10)
   --timeout	    Timeout in waiting for responses. (--timeout=20)
-  --only-final	Stop showing each enumerated letter.
+  --only-final	    Stop showing each enumerated letter.
   --comma	    Encode comma.
   --bracket	    Add brackets to the end of substring function. --bracket="))"
-  --hexspace	Use space instead of brackets to split hex values.
+  --hexspace	    Use space instead of brackets to split hex values.
   --verbose	    Show verbose messages.
   ```
 
