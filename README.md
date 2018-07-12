@@ -13,7 +13,7 @@ I recommend using "--test" switch to clearly see how configured payload looks li
   --2ndfile	    File containing valid HTTP request used in second order exploitation. (--2ndfile=/tmp/2ndreq.txt)
 
   --mode	    Blind mode to use - (between - b (generates less requests), moreless - a (generates less requests by using "<", ">", "=" characters), like - l (complete bruteforce), equals - e (complete bruteforce)). (--mode=l)
-  --postgres        Use postgres \"for\" in substring function.
+  --postgres        Use postgres "for" in substring function (e.g. from 1 for 1).
   --hex		    Use hex to compare instead of characters.
   --case	    Case sensitivity.
 
